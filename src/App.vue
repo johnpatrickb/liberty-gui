@@ -43,9 +43,7 @@ export default {
     // send null to check if the ledger exists
     window.api.send('decryptLedger', null)
     let autoSync = setInterval(() => {
-      console.log('interval')
       if (this.loading === false && this.ledgerDecrypted === true && this.wantSync === false) {
-        console.log('syncing')
         this.checkLedgerDiff = true
         this.syncLedger()
       }
