@@ -1,0 +1,7 @@
+target:
+  - target: pacman
+    arch: x64
+files:
+  - 'dist/**/*'
+  - 'package.json'
+  - 'main.js'
