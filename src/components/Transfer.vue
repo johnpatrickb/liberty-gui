@@ -27,8 +27,11 @@ export default {
   <div>
     <form @submit.prevent="onSubmit">
       <label>Recipient Public Key</label>
+      <br>
       <textarea v-model="recipientKey" required></textarea>
+      <br>
       <label>Denarii</label>
+      <br>
       <input v-model="installments" type="number" min=1 :max="denariiTotal" required></input>
       <button type="submit">Transfer</button>
     </form>

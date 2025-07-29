@@ -73,9 +73,9 @@ export default {
       for (let key of this.keys) {
         let joinedKey = key
         joinedKey.receipts = []
-        for (let id in this.receipts) {
-          if (this.receipts[id].pubkey === key.pubkey) {
-            joinedKey.receipts.push(this.receipts[id])
+        for (let receipt of this.receipts) {
+          if (receipt.ownerPubkey === key.pubkey) {
+            joinedKey.receipts.push(receipt)
           }
         }
         joinedKeys.push(joinedKey)

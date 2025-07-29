@@ -6,99 +6,146 @@ import Init from './components/Init.vue'
 import Ledger from './components/Ledger.vue'
 import NewKey from './components/NewKey.vue'
 import Transfer from './components/Transfer.vue'
+import LibertyCrypto from './libertyCrypto.js'
+import NativeWrapper from './nativeWrapper.js';
 </script>
 
 <script>
 export default {
   data () {
-    window.api.receive('decryptedLedger', (ledger) => {
-      if (typeof ledger === 'string') {
-        if (ledger === 'found')
-          this.ledgerFound = true
-      }
-      else if (typeof ledger === 'object') {
-        this.keys = ledger.keys
-        this.ledgerDecrypted = true
-
-        if (this.wantSync) {
-          this.wantSync = false
-          this.syncLedger()
-        }
-        else {
-          this.loading = false
-
-          if (this.checkLedgerDiff && JSON.stringify(toRaw(this.receipts)) != JSON.stringify(ledger.receipts)) {
-            this.loading = true
-            this.checkLedgerDiff = false
-            setTimeout(() => {this.loading = false}, 400)
-          }
-
-          this.receipts = ledger.receipts
-        }
-      }
-      else {
-        this.badPassword = true
-      }
+    NativeWrapper.getEncryptedLedger().then((encryptedLedger) => {
+      if (encryptedLedger !== null)
+        this.ledgerFound = true
     })
-    // send null to check if the ledger exists
-    window.api.send('decryptLedger', null)
-    let autoSync = setInterval(() => {
-      if (this.loading === false && this.ledgerDecrypted === true && this.wantSync === false) {
-        this.checkLedgerDiff = true
-        this.syncLedger()
-      }
-    }, 1000 * 10)
     return {
       keys: [],
-      receipts: {},
+      receipts: [],
       ledgerFound: false,
       ledgerDecrypted: false,
       badPassword: false,
       loading: false,
-      wantSync: false,
-      autoSync,
+      autoSync: null,
       checkLedgerDiff: false,
       page: 'ledger',
     }
   },
   methods: {
-    decryptLedger(password) {
+    async decryptLedger(password) {
       this.loading = true
-      this.wantSync = true
-      window.api.send('decryptLedger', password)
-    },
-    syncLedger() {
-      window.api.send('syncLedger', toRaw(this.keys))
+      let ledger = await LibertyCrypto.decryptLedger(password)
+
+      if (ledger === null) {
+        this.badPassword = true
+      }
+      else {
+        this.keys = ledger.keys
+        this.ledgerDecrypted = true
+        let receipts = await LibertyCrypto.syncLedger(this.keys)
+
+        if (receipts === null) {
+          console.log('Failed to sync ledger')
+          return
+        }
+
+        this.receipts = receipts
+        this.autoSync = setInterval(async () => {
+          if (this.loading === false && this.ledgerDecrypted === true) {
+            let receipts = await LibertyCrypto.syncLedger(this.keys)
+
+            if (receipts === null) {
+              console.log('Failed to sync ledger')
+              return
+            }
+
+            if (JSON.stringify(toRaw(this.receipts)) != JSON.stringify(receipts)) {
+              this.loading = true
+              setTimeout(() => {this.loading = false}, 400)
+            }
+
+            this.receipts = receipts
+          }
+        }, 1000 * 10)
+      }
+      this.loading = false
     },
     changePage(page) {
       this.page = page
     },
-    generateKey(name) {
+    async generateKey(name) {
       this.loading = true
       this.page = 'ledger'
-      window.api.send('generateKey', {name, keys: toRaw(this.keys), receipts: toRaw(this.receipts)})
+      let key = await LibertyCrypto.generateKey()
+      key.name = name
+      this.keys.push(key)
+      await LibertyCrypto.saveLedger(this.keys, this.receipts)
+      this.loading = false
     },
-    transfer(data) {
+    async transfer(data) {
       this.loading = true
       this.page = 'ledger'
-      window.api.send('transfer', {recipientKey: data.recipientKey, installments: data.installments, keys: toRaw(this.keys), receipts: toRaw(this.receipts)})
+      let transfered = await LibertyCrypto.transfer(this.keys, this.receipts, data.recipientKey, data.installments)
+
+      if (transfered === false) {
+        console.log('Failed to transfer')
+        return
+      }
+
+      let receipts = await LibertyCrypto.syncLedger(this.keys)
+
+      if (receipts === null) {
+        console.log('Failed to sync ledger')
+        return
+      }
+
+      this.receipts = receipts
+      this.loading = false
     },
-    consolidate(key) {
+    async consolidate(key) {
       this.loading = true
-      window.api.send('consolidate', {key, keys: toRaw(this.keys)})
+      let consolidated = await LibertyCrypto.consolidate(key)
+
+      if (consolidated === false) {
+        console.log('Failed to consolidate receipts')
+        return
+      }
+
+      let receipts = await LibertyCrypto.syncLedger(this.keys)
+
+      if (receipts === null) {
+        console.log('Failed to sync ledger')
+        return
+      }
+
+      this.receipts = receipts
+      this.loading = false
     },
-    redeem(data) {
+    async redeem(data) {
       this.loading = true
-      window.api.send('redeem', {key: data.key, receipt: data.receipt, keys: toRaw(this.keys)})
+      let redeemed = await LibertyCrypto.redeem(data.key, data.receipt)
+
+      if (redeemed === false) {
+        console.log('Failed to redeem receipt')
+        return
+      }
+
+      let receipts = await LibertyCrypto.syncLedger(this.keys)
+
+      if (receipts === null) {
+        console.log('Failed to sync ledger')
+        return
+      }
+
+      this.receipts = receipts
+      this.loading = false
     },
   },
   computed: {
     denariiTotal() {
       let total = 0
 
-      for (let index in this.receipts) {
-        if (this.receipts[index].redeemed !== true)
-          total += this.receipts[index].installments
+      for (let receipt of this.receipts) {
+        if (receipt.redeemed !== true)
+          total += receipt.installments
       }
 
       return total

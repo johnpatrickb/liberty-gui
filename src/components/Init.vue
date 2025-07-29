@@ -13,6 +13,7 @@ export default {
   methods: {
     onSubmit() {
       this.$emit('decrypt', this.password)
+      this.password = ''
     }
   }
 }
