@@ -201,7 +201,7 @@ export default {
   async syncLedger(keys)
   {
     if (keys.length === 0)
-      return {}
+      return []
 
     let request = {ownerPubkeys: []}
 
