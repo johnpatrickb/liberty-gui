@@ -4,7 +4,8 @@ import axios from 'axios';
 const MAX_INSTALLMENTS = 5000
 
 let ledgerKey;
-let ledgerServerHostname = 'http://127.0.0.1:8080/'
+//let ledgerServerHostname = 'http://127.0.0.1:8080/'
+let ledgerServerHostname = 'https://ledger.libertytreewatering.com/'
 let enc = new TextEncoder()
 let dec = new TextDecoder()
 
