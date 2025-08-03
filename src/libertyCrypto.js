@@ -182,7 +182,7 @@ export default {
       ledger = enc.encode(JSON.stringify({keys: [], receipts: []}))
       cipherText = await window.crypto.subtle.encrypt({name: 'AES-CBC', iv: new ArrayBuffer(16)}, ledgerKey, ledger)
       cipherText = arrayBufferToBase64(cipherText)
-      NativeWrapper.setEncryptedLedger(cipherText)
+      await NativeWrapper.setEncryptedLedger(cipherText)
       return {keys: [], receipts: []}
     }
     else {
@@ -239,7 +239,7 @@ export default {
     let ledger = enc.encode(JSON.stringify({keys, receipts}))
     let cipherText = await window.crypto.subtle.encrypt({name: 'AES-CBC', iv: new ArrayBuffer(16)}, ledgerKey, ledger)
     cipherText = arrayBufferToBase64(cipherText)
-    NativeWrapper.setEncryptedLedger(cipherText)
+    await NativeWrapper.setEncryptedLedger(cipherText)
   },
   async transfer(keys, receipts, recipientKey, installments)
   {
