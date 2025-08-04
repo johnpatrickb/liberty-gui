@@ -38,6 +38,7 @@ function arrayBufferToBase64(buffer)
   for (let i = 0; i < len; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
+
   return btoa(binary);
 }
 
@@ -96,6 +97,7 @@ async function signRequest(request, nonce, privkey)
   privkey = base64ToArrayBuffer(privkey)
   privkey = await window.crypto.subtle.importKey('pkcs8', privkey, {name: 'ECDSA', namedCurve: 'P-521'}, false, ['sign'])
   let signature = await window.crypto.subtle.sign({name: 'ECDSA', hash: 'SHA-256'}, privkey, sigCheck)
+
   return arrayBufferToBase64(signature)
 }
 
@@ -197,6 +199,7 @@ export default {
         ledger = null
       }
     }
+
     return ledger
   },
   async syncLedger(keys)
@@ -232,6 +235,7 @@ export default {
     let pubkey = await window.crypto.subtle.exportKey('spki', publicKey)
     pubkey = btoa(String.fromCharCode.apply(null, new Uint8Array(pubkey)))
     pubkey = normalizePem(pubkey, false)
+
     return {pubkey, privkey}
   },
   async saveLedger(keys, receipts)
@@ -322,5 +326,36 @@ export default {
     }
 
     return true
+  },
+  async importKey(privkey)
+  {
+    let key = {}
+    privkey = privkey.replace(/\n/g, '')
+
+    if (privkey.indexOf('-----BEGIN EC PRIVATE KEY-----') !== 0 || privkey.indexOf('-----END EC PRIVATE KEY-----') + '-----END EC PRIVATE KEY-----'.length !== privkey.length)
+      return null
+
+    privkey = privkey.substr('-----BEGIN EC PRIVATE KEY-----'.length)
+    privkey = privkey.substr(0, privkey.length - '-----END EC PRIVATE KEY-----'.length)
+    key.privkey = normalizePem(privkey, true)
+    privkey = base64ToArrayBuffer(privkey)
+
+    try {
+      privkey = await window.crypto.subtle.importKey('pkcs8', privkey, {name: 'ECDSA', namedCurve: 'P-521'}, true, ['sign'])
+    }
+    catch (e) {
+      console.log(e)
+      return null
+    }
+
+    privkey = await window.crypto.subtle.exportKey('jwk', privkey)
+    delete privkey.d
+    privkey.key_ops = ['verify']
+    let pubkey = await window.crypto.subtle.importKey('jwk', privkey, {name: 'ECDSA', namedCurve: 'P-521'}, true, ['verify'])
+    pubkey = await window.crypto.subtle.exportKey('spki', pubkey)
+    pubkey = btoa(String.fromCharCode.apply(null, new Uint8Array(pubkey)))
+    key.pubkey = normalizePem(pubkey, false)
+
+    return key
   },
 };

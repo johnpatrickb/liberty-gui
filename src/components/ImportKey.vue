@@ -3,15 +3,17 @@
 
 <script>
 export default {
-  emits: ['newKey'],
+  emits: ['importKey'],
   data() {
     return {
+      privkey: '',
       keyName: '',
     }
   },
   methods: {
     onSubmit() {
-      this.$emit('newKey', this.keyName)
+      this.$emit('importKey', {privkey: this.privkey, name: this.keyName})
+      this.privkey = ''
       this.keyName = ''
     }
   }
@@ -19,18 +21,24 @@ export default {
 </script>
 
 <template>
-  <div class="new-key-wrapper">
+  <div class="transfer-wrapper">
     <form @submit.prevent="onSubmit">
+      <h1>Pem Private Key</h1>
+      <textarea v-model="privkey" required></textarea>
       <h1>Enter Key Memo</h1>
       <input v-model="keyName" type="text" required>
-      <button type="submit">Generate</button>
+      <button type="submit">Import</button>
     </form>
   </div>
 </template>
 
 <style scoped>
+h1 {
+  margin-bottom: 5px;
+}
+
 @media only screen and (max-width: 480px) {
-  .new-key-wrapper {
+  .transfer-wrapper {
     padding-left: 10px;
   }
 }
