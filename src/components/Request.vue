@@ -40,7 +40,7 @@ export default {
       <input v-model="installments" class="installments" type="number" min=1 placeholder=1 required></input>
       <button type="submit">Request</button>
     </form>
-    <p class="pubkey">{{pubkey}}</p>
+    <p class="key">{{pubkey}}</p>
     <qrcode-vue v-if="pubkey !== ''" :value="pubkey + ':' + wantInstallments" :size="200"></qrcode-vue>
     <div v-if="status !== ''">
       <h5 v-show="status === 'pending'">Waiting for {{wantInstallments}} Denarii</h5>
@@ -58,10 +58,6 @@ h1 {
 input.installments {
   field-sizing: content;
   min-width: 30px;
-}
-
-.pubkey {
-  white-space: pre;
 }
 
 .success {
