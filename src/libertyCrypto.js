@@ -330,6 +330,7 @@ export default {
   async importKey(privkey)
   {
     let key = {}
+    privkey = privkey.replace(/\r/g, '')
     privkey = privkey.replace(/\n/g, '')
 
     if (privkey.indexOf('-----BEGIN EC PRIVATE KEY-----') !== 0 || privkey.indexOf('-----END EC PRIVATE KEY-----') + '-----END EC PRIVATE KEY-----'.length !== privkey.length)
