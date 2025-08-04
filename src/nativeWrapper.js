@@ -20,8 +20,6 @@ export default {
 
     let ledger = await db.query('SELECT * FROM localLedger;')
 
-    console.log('getEncryptedLedger',JSON.stringify(ledger))
-
     if (!ledger || ledger.values.length === 0)
       return null
 
@@ -29,12 +27,10 @@ export default {
   },
   async setEncryptedLedger(encryptedLedger) {
     let result
-    console.log('setEncryptedLedger', encryptedLedger)
-    if (await this.getEncryptedLedger() === null)
-      result = await db.query(`INSERT INTO localLedger (ledger) VALUES('${encryptedLedger}');`)
-    else
-      result = await db.query(`UPDATE localLedger SET ledger='${encryptedLedger}';`)
 
-    console.log('setEncryptedLedger', JSON.stringify(result))
+    if (await this.getEncryptedLedger() === null)
+      await db.query(`INSERT INTO localLedger (ledger) VALUES('${encryptedLedger}');`)
+    else
+      await db.query(`UPDATE localLedger SET ledger='${encryptedLedger}';`)
   },
 };
