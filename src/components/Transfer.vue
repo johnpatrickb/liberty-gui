@@ -16,7 +16,7 @@ export default {
       if (this.installments <= this.denariiTotal) {
         this.$emit('transfer', {recipientKey: this.recipientKey, installments: this.installments})
         this.recipientKey = ''
-        this.installments = 0
+        this.installments = null
       }
     }
   }
