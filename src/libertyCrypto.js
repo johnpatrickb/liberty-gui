@@ -312,10 +312,9 @@ export default {
   },
   async redeem(key, receipt)
   {
+    let response
     let request = {id: receipt.id}
     request.redemptionSignature = await signRequest(request, receipt.nonce, key.privkey)
-
-    let response
 
     try {
       response = await axios.post(ledgerServerHostname + 'redeem', request)
@@ -358,5 +357,36 @@ export default {
     key.pubkey = normalizePem(pubkey, false)
 
     return key
+  },
+  async fetchHistory(key)
+  {
+    let response
+    let request = {pubkey: key.pubkey}
+    request.historySignature = await signRequest(request, null, key.privkey)
+
+    try {
+      response = await axios.post(ledgerServerHostname + 'history', request)
+    }
+    catch(e) {
+      console.log(e)
+      return null
+    }
+
+    let privkey = key.privkey.substr('-----BEGIN EC PRIVATE KEY-----\n'.length)
+    privkey = privkey.substr(0, privkey.length - '-----END EC PRIVATE KEY-----\n'.length)
+    privkey = privkey.replace(/\n/g, '')
+    privkey = base64ToArrayBuffer(privkey)
+    privkey = await window.crypto.subtle.importKey('pkcs8', privkey, {name: 'ECDH', namedCurve: 'P-521'}, false, ['deriveBits'])
+    let senderPubkey = response.data.pubkey.substr('-----BEGIN PUBLIC KEY-----\n'.length)
+    senderPubkey = senderPubkey.substr(0, senderPubkey.length - '-----END PUBLIC KEY-----\n'.length)
+    senderPubkey = senderPubkey.replace(/\n/g, '')
+    senderPubkey = base64ToArrayBuffer(senderPubkey)
+    senderPubkey = await window.crypto.subtle.importKey('spki', senderPubkey, {name: 'ECDH', namedCurve: 'P-521'}, false, [])
+    let sharedSecretBits = await window.crypto.subtle.deriveBits({name: 'ECDH', public: senderPubkey}, privkey, 256)
+    let symmetricKey = await window.crypto.subtle.importKey('raw', sharedSecretBits, {name: 'AES-CBC'}, false, ['decrypt'])
+    let iv = base64ToArrayBuffer(response.data.iv)
+    let plainText = await window.crypto.subtle.decrypt({name: 'AES-CBC', iv: iv}, symmetricKey, base64ToArrayBuffer(response.data.encryptedHistory))
+
+    return JSON.parse(dec.decode(plainText))
   },
 };

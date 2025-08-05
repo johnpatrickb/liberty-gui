@@ -35,6 +35,7 @@ export default {
       requestReceived: null,
       requestPubkey: '',
       errorText: '',
+      history: null,
     }
   },
   methods: {
@@ -230,7 +231,22 @@ export default {
       this.receipts = receipts
       this.loading = false
     },
+    async fetchHistory(key) {
+      this.loading = true
+      this.history = null
+      let history = await LibertyCrypto.fetchHistory(key)
+
+      if (history === null) {
+        this.errorText = 'Failed to fetch key history, check your internet connection.'
+        this.loading = false
+        return
+      }
+
+      this.history = history
+      this.loading = false
+    },
     changePage(page) {
+      this.history = null
       this.requestStatus = ''
       this.requestReceived = null
       this.requestPubkey = ''
@@ -263,7 +279,7 @@ export default {
   <Header v-show="page !== ''" @back="changePage('')" />
   <div class="flex-container">
     <Sidebar v-show="(mobileShowMenu && ledgerDecrypted) || !isMobile()" @change="changePage" :denarii-total="denariiTotal" :active-page="page" class="sidebar" />
-    <Ledger v-show="page === 'ledger'" @consolidate="consolidate" @redeem="redeem" @remove="removeKey" :keys="keys" :receipts="receipts" :mobile="isMobile()" class="content" />
+    <Ledger v-show="page === 'ledger'" @consolidate="consolidate" @redeem="redeem" @remove="removeKey" @fetchHistory="fetchHistory" :keys="keys" :receipts="receipts" :history="history" :mobile="isMobile()" class="content" />
     <NewKey v-show="page === 'newKey'" @newKey="generateKey" class="content" />
     <Transfer v-show="page === 'transfer'" @transfer="transfer" :denarii-total="denariiTotal" class="content" />
     <Request v-show="page === 'request'" @request="request" :status="requestStatus" :received="requestReceived" :pubkey="requestPubkey" :mobile="isMobile()" class="content" />
