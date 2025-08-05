@@ -23,7 +23,7 @@ export default {
     status(newVal, oldVal) {
       if (oldVal === '') {
         this.keyName = ''
-        this.installments = 0
+        this.installments = null
       }
     },
   },
