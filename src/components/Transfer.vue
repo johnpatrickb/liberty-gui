@@ -3,7 +3,7 @@
 
 <script>
 export default {
-  props: ['denariiTotal'],
+  props: ['denariiTotal', 'scanKey', 'scanInstallments'],
   emits: ['transfer'],
   data() {
     return {
@@ -19,7 +19,15 @@ export default {
         this.installments = 0
       }
     }
-  }
+  },
+  watch: {
+    scanKey(newVal, oldVal) {
+      this.recipientKey = newVal
+    },
+    scanInstallments(newVal, oldVal) {
+      this.installments = newVal
+    },
+  },
 }
 </script>
 

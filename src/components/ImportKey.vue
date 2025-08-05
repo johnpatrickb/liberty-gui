@@ -3,6 +3,7 @@
 
 <script>
 export default {
+  props: ['scanKey'],
   emits: ['importKey'],
   data() {
     return {
@@ -16,7 +17,12 @@ export default {
       this.privkey = ''
       this.keyName = ''
     }
-  }
+  },
+  watch: {
+    scanKey(newVal, oldVal) {
+      this.privkey = newVal
+    },
+  },
 }
 </script>
 

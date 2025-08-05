@@ -24,6 +24,7 @@ export default {
       <li @click="change('transfer')"><strong>Transfer</strong></li>
       <li @click="change('request')"><strong>Request</strong></li>
       <li @click="change('import')"><strong>Import</strong></li>
+      <li @click="change('scan')"><strong>Scan</strong></li>
     </ul>
   </div>
 </template>

@@ -29,4 +29,8 @@ export default {
 .error {
   color: red;
 }
+
+.modal-background, .modal-body {
+  z-index: 2;
+}
 </style>

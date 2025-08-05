@@ -35,6 +35,8 @@ export default {
       requestReceived: null,
       requestPubkey: '',
       errorText: '',
+      scanKey: '',
+      scanInstallments: null,
     }
   },
   methods: {
@@ -230,12 +232,43 @@ export default {
       this.receipts = receipts
       this.loading = false
     },
-    changePage(page) {
+    async changePage(page) {
       this.requestStatus = ''
       this.requestReceived = null
       this.requestPubkey = ''
-      this.mobileShowMenu = !this.mobileShowMenu
-      this.page = page
+      this.scanKey = ''
+      this.scanInstallments = null
+
+      if (page === 'scan') {
+        let data = await NativeWrapper.scanQRCode()
+
+        if (data === null) {
+          this.errorText = 'An error has occurred during QR code scanning, please try again.'
+        }
+        else if (data.type === 'public') {
+          this.scanKey = data.key
+          this.page = 'transfer'
+        }
+        else if (data.type === 'private') {
+          this.scanKey = data.key
+          this.page = 'import'
+        }
+        else if (data.type === 'request') {
+          this.scanKey = data.key
+          this.scanInstallments = data.installments
+          this.page = 'transfer'
+        }
+        else {
+          this.errorText = 'The QR code was not recognized, it must a valid public key, valid private key or a valid request.'
+        }
+
+        if (this.page !== '')
+          this.mobileShowMenu = false
+      }
+      else {
+        this.mobileShowMenu = !this.mobileShowMenu
+        this.page = page
+      }
     },
     isMobile() {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -265,9 +298,9 @@ export default {
     <Sidebar v-show="(mobileShowMenu && ledgerDecrypted) || !isMobile()" @change="changePage" :denarii-total="denariiTotal" :active-page="page" class="sidebar" />
     <Ledger v-show="page === 'ledger'" @consolidate="consolidate" @redeem="redeem" @remove="removeKey" :keys="keys" :receipts="receipts" :mobile="isMobile()" class="content" />
     <NewKey v-show="page === 'newKey'" @newKey="generateKey" class="content" />
-    <Transfer v-show="page === 'transfer'" @transfer="transfer" :denarii-total="denariiTotal" class="content" />
+    <Transfer v-show="page === 'transfer'" @transfer="transfer" :denarii-total="denariiTotal" :scan-key="scanKey" :scan-installments="scanInstallments" class="content" />
     <Request v-show="page === 'request'" @request="request" :status="requestStatus" :received="requestReceived" :pubkey="requestPubkey" :mobile="isMobile()" class="content" />
-    <ImportKey v-show="page === 'import'" @importKey="importKey" class="content" />
+    <ImportKey v-show="page === 'import'" @importKey="importKey" :scan-key="scanKey" class="content" />
   </div>
 </template>
 
