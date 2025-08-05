@@ -5,10 +5,10 @@ This is the desktop version of the liberty receipt manager. It is an electron ap
 ## Building for development
 
 ```
-npm install
-npm run dev -- --port 8000
+$ npm install
+$ npm run dev -- --port 8000
 # Then in a separate terminal emulator
-npm run start
+$ npm run start
 ```
 
 ## Usage
