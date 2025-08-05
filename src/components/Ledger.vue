@@ -5,8 +5,8 @@ import QrcodeVue from 'qrcode.vue';
 
 <script>
 export default {
-  props: ['keys', 'receipts', 'mobile'],
-  emits: ['consolidate', 'redeem', 'remove'],
+  props: ['keys', 'receipts', 'history', 'mobile'],
+  emits: ['consolidate', 'redeem', 'remove', 'fetchHistory'],
   data() {
     return {
       selectedIndex: -1,
@@ -15,11 +15,14 @@ export default {
       modalText: '',
       showPrivate: false,
       removePrivkey: '',
+      shownHistory: null,
     }
   },
   methods: {
     select(index) {
+      this.shownHistory = null
       this.showPrivate = false
+
       if (this.selectedIndex === index)
         this.selectedIndex = -1
       else
@@ -27,18 +30,22 @@ export default {
     },
     getInstallments(key) {
       let installments = 0
+
       for (let receipt of key.receipts) {
         if (receipt.redeemed !== true)
           installments += receipt.installments
       }
+
       return installments
     },
     getCoupons(key) {
       let coupons = 0
+
       for (let receipt of key.receipts) {
         if (receipt.redeemed === true)
           coupons++
       }
+
       return coupons
     },
     canConsolidate(key) {
@@ -79,22 +86,37 @@ export default {
       this.removePrivkey = ''
       this.selectedIndex = -1
     },
+    fetchHistory(key) {
+      if (this.shownHistory !== null)
+        this.shownHistory = null
+      else
+        this.$emit('fetchHistory', {privkey: key.privkey, pubkey: key.pubkey})
+    }
+  },
+  watch: {
+    history(newVal, oldVal) {
+      this.shownHistory = newVal
+    },
   },
   computed: {
     joinedKeys() {
       let joinedKeys = []
+
       for (let key of this.keys) {
         let joinedKey = key
         joinedKey.receipts = []
+
         for (let receipt of this.receipts) {
           if (receipt.ownerPubkey === key.pubkey) {
             joinedKey.receipts.push(receipt)
           }
         }
+
         joinedKeys.push(joinedKey)
       }
+
       return joinedKeys
-    }
+    },
   }
 }
 </script>
@@ -117,6 +139,7 @@ export default {
           <br>
           <button @click="showPrivate = !showPrivate">{{showPrivate ? 'Show Public Key' : 'Show Private Key'}}</button>
           <button @click="removePrivkey = key.privkey" class="push-right">Remove Key</button>
+          <button @click="fetchHistory(key)" class="push-right">{{shownHistory === null ? 'Show History' : 'Show Receipts'}}</button>
         </div>
 
         <div v-if="showPrivate">
@@ -133,14 +156,35 @@ export default {
           <qrcode-vue :value="key.pubkey" :size="200"></qrcode-vue>
         </div>
 
-        <h3><span v-if="showCoupons">Redeemed </span>Receipts <button v-show="!showCoupons" v-if="canConsolidate(key)" @click="consolidate(key)">Consolidate</button></h3>
-        <div v-for="receipt in key.receipts" class="receipt">
-          <p v-show="showReceipt(receipt)">
-            ID: {{receipt.id}}, 
-            <span v-if="receipt.redeemed !== true">{{receipt.installments}} {{receipt.installments === 1 ? 'Denarius' : 'Denarii'}}</span>
-            <span v-else>Coupon Code: {{receipt.coupon}}</span>
-            <button v-if="canRedeem(receipt)" @click="redeem(key, receipt)"> Redeem</button>
-          </p>
+        <div v-if="shownHistory !== null">
+          <h3>History</h3>
+          <div v-for="operation in shownHistory" class="receipt key">
+            <p>
+              ID: {{operation.receiptId}}, 
+              Operation: {{operation.type}}, 
+              Direction: {{operation.direction}}, 
+              Denarii: {{operation.installments}}, 
+              Date: {{operation.createdAt}} 
+            </p>
+            <p v-if="operation.otherPubkey === key.pubkey || operation.type === 'redeem'">Operation Targeted Own Key</p>
+            <div v-else>
+              <p>{{operation.direction === 'incoming' ? 'Sent From' : 'Sent To'}}</p>
+              <p>{{operation.otherPubkey}}</p>
+            </div>
+            <br>
+          </div>
+        </div>
+
+        <div v-show="shownHistory === null">
+          <h3><span v-if="showCoupons">Redeemed </span>Receipts <button v-show="!showCoupons" v-if="canConsolidate(key)" @click="consolidate(key)">Consolidate</button></h3>
+          <div v-for="receipt in key.receipts" class="receipt">
+            <p v-show="showReceipt(receipt)">
+              ID: {{receipt.id}}, 
+              <span v-if="receipt.redeemed !== true">{{receipt.installments}} {{receipt.installments === 1 ? 'Denarius' : 'Denarii'}}</span>
+              <span v-else>Coupon Code: {{receipt.coupon}}</span>
+              <button v-if="canRedeem(receipt)" @click="redeem(key, receipt)"> Redeem</button>
+            </p>
+          </div>
         </div>
       </div>
     </div>
