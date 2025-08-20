@@ -1,8 +1,8 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import type {CapacitorConfig} from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.liberty.app',
-  appName: 'liberty-gui',
+  appName: 'Liberty Receipt Manager',
   webDir: 'dist',
   ios: {
     "contentInset": "always"
@@ -12,7 +12,16 @@ const config: CapacitorConfig = {
       iosDatabaseLocation: 'Library/CapacitorDatabase',
       iosIsEncryption: false,
       androidIsEncryption: false,
-    }
+    },
+    SafeArea: {
+      enabled: true,
+      customColorsForSystemBars: true,
+      statusBarColor: '#000000',
+      statusBarContent: 'light',
+      navigationBarColor: '#000000',
+      navigationBarContent: 'light',
+      offset: 0,
+    },
   }
 };
 

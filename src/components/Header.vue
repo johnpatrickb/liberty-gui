@@ -1,9 +1,15 @@
 <script setup>
+import {Capacitor} from '@capacitor/core';
 </script>
 
 <script>
 export default {
   emits: ['back'],
+  data() {
+    return {
+      safeArea: Capacitor.getPlatform() === 'android',
+    }
+  },
   methods: {
     back() {
       this.$emit('back')
@@ -13,8 +19,8 @@ export default {
 </script>
 
 <template>
-  <div class="header">
-    <h1 @click="back()" class="mobile-back">&#8249;</h1>
+  <div :class="{'safe-area': safeArea}" class="header">
+    <h1 @click="back()" :class="{'safe-area': safeArea}" class="mobile-back">&#8249;</h1>
     <h1>Liberty Receipt Manager</h1>
   </div>
 </template>
@@ -35,6 +41,10 @@ export default {
 }
 
 @media only screen and (max-width: 480px) {
+  .header.safe-area {
+    padding-top: var(--safe-area-inset-top);
+  }
+
   .header h1 {
     font-size: 1.4em;
     text-align: center;
@@ -49,6 +59,10 @@ export default {
     border-radius: 50%;
     padding: 4px 16px;
     color: white;
+  }
+
+  .mobile-back.safe-area {
+    top: var(--safe-area-inset-top);
   }
 }
 </style>

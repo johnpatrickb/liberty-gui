@@ -11,6 +11,7 @@ import ImportKey from './components/ImportKey.vue'
 import Error from './components/Error.vue'
 import LibertyCrypto from './libertyCrypto.js'
 import NativeWrapper from './nativeWrapper.js';
+import {Capacitor} from '@capacitor/core';
 </script>
 
 <script>
@@ -38,6 +39,7 @@ export default {
       history: null,
       scanKey: '',
       scanInstallments: null,
+      safeArea: Capacitor.getPlatform() === 'android',
     }
   },
   methods: {
@@ -311,7 +313,7 @@ export default {
   <Error @clearError="errorText = ''" :errorText="errorText" />
   <Header v-show="page !== ''" @back="changePage('')" />
   <div class="flex-container">
-    <Sidebar v-show="(mobileShowMenu && ledgerDecrypted) || !isMobile()" @change="changePage" :denarii-total="denariiTotal" :active-page="page" class="sidebar" />
+    <Sidebar v-show="(mobileShowMenu && ledgerDecrypted) || !isMobile()" @change="changePage" :denarii-total="denariiTotal" :active-page="page" :class="{'safe-area': safeArea}" class="sidebar" />
     <Ledger v-show="page === 'ledger'" @consolidate="consolidate" @redeem="redeem" @remove="removeKey" @fetchHistory="fetchHistory" :keys="keys" :receipts="receipts" :history="history" :mobile="isMobile()" class="content" />
     <NewKey v-show="page === 'newKey'" @newKey="generateKey" class="content" />
     <Transfer v-show="page === 'transfer'" @transfer="transfer" :denarii-total="denariiTotal" :scan-key="scanKey" :scan-installments="scanInstallments" class="content" />
@@ -406,6 +408,10 @@ body {
     bottom: 0;
     width: initial;
     background-color: white;
+  }
+
+  .safe-area {
+    top: var(--safe-area-inset-top) !important;
   }
 }
 </style>

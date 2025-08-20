@@ -1,5 +1,5 @@
 {
-  "name": "liberty-gui",
+  "name": "Liberty Receipt Manager",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,6 +13,7 @@
     "app:dist": "electron-builder"
   },
   "dependencies": {
+    "@capacitor-community/safe-area": "^7.0.0-alpha.1",
     "@capacitor-community/sqlite": "^7.0.1",
     "@capacitor/android": "^7.4.2",
     "@capacitor/barcode-scanner": "^2.0.3",
@@ -26,6 +27,7 @@
     "vue": "^3.5.17"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@vitejs/plugin-vue": "^6.0.0",
     "typescript": "^5.8.3",
     "vite": "^7.0.0"
