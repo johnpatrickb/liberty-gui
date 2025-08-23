@@ -1,9 +1,10 @@
 import type {CapacitorConfig} from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.liberty.app',
+  appId: 'com.libertytreewatering.app',
   appName: 'Liberty Receipt Manager',
   webDir: 'dist',
+  loggingBehavior: 'debug',
   ios: {
     "contentInset": "always"
   },

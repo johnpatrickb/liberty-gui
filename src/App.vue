@@ -12,11 +12,14 @@ import Error from './components/Error.vue'
 import LibertyCrypto from './libertyCrypto.js'
 import NativeWrapper from './nativeWrapper.js';
 import {Capacitor} from '@capacitor/core';
+import {App} from '@capacitor/app';
+import {ScreenOrientation} from '@capacitor/screen-orientation';
 </script>
 
 <script>
 export default {
   data () {
+    ScreenOrientation.lock({orientation: 'portrait'})
     NativeWrapper.getEncryptedLedger().then((encryptedLedger) => {
       if (encryptedLedger !== null)
         this.ledgerFound = true
@@ -63,11 +66,17 @@ export default {
 
         this.receipts = receipts
         this.autoSync = setInterval(async () => {
-          if (this.loading === false && this.ledgerDecrypted === true) {
+          let appState = await App.getState()
+
+          if (this.loading === false && this.ledgerDecrypted === true && appState.isActive === true) {
             let receipts = await LibertyCrypto.syncLedger(this.keys)
 
             if (receipts === null) {
-              this.errorText = 'Failed to sync ledger, check your internet connection.'
+              appState = await App.getState()
+
+              if (appState.isActive === true)
+                this.errorText = 'Failed to sync ledger, check your internet connection.'
+
               return
             }
 
@@ -167,6 +176,11 @@ export default {
 
       while (this.requestStatus === 'pending') {
         await new Promise((resolve) => {setTimeout(() => {resolve()}, 3000)})
+        let appState = await App.getState()
+
+        if (appState.isActive !== true)
+          continue
+
         let receipts = await LibertyCrypto.syncLedger([key])
 
         if (receipts.length === 0) {

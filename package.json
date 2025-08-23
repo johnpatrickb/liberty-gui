@@ -16,10 +16,12 @@
     "@capacitor-community/safe-area": "^7.0.0-alpha.1",
     "@capacitor-community/sqlite": "^7.0.1",
     "@capacitor/android": "^7.4.2",
+    "@capacitor/app": "^7.0.2",
     "@capacitor/barcode-scanner": "^2.0.3",
     "@capacitor/cli": "^7.4.2",
     "@capacitor/core": "^7.4.2",
     "@capacitor/ios": "^7.4.2",
+    "@capacitor/screen-orientation": "^7.0.2",
     "ansi-regex": "^6.1.0",
     "astral-regex": "^2.0.0",
     "axios": "^1.11.0",
@@ -29,6 +31,7 @@
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "@vitejs/plugin-vue": "^6.0.0",
+    "capacitor-set-version": "^2.2.0",
     "typescript": "^5.8.3",
     "vite": "^7.0.0"
   }
