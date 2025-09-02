@@ -1,7 +1,7 @@
 {
   "name": "Liberty Receipt Manager",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "main.js",
   "scripts": {
@@ -34,5 +34,26 @@
     "capacitor-set-version": "^2.2.0",
     "typescript": "^5.8.3",
     "vite": "^7.0.0"
+  },
+  "build": {
+    "appId": "comm.libertytreewatering.app",
+    "productName": "Liberty Receipt Manager",
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "preload.js"
+    ],
+    "directories": {
+      "output": "electron-dist"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }
