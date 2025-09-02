@@ -1,4 +1,4 @@
-import {app, BrowserWindow, ipcMain} from 'electron'
+import {app, BrowserWindow, ipcMain, Menu} from 'electron'
 import Store from 'electron-store'
 import fs from 'fs'
 import {fileURLToPath} from 'url'
@@ -28,9 +28,10 @@ app.whenReady().then(() => {
       preload: path.join(__dirname, 'preload.js')
     },
   });
-  //win.loadURL('http://localhost:8000');
-  win.loadFile('dist/index.html');
-  //win.webContents.openDevTools();
+  //win.loadURL('http://localhost:8000')
+  win.loadFile('dist/index.html')
+  //win.webContents.openDevTools()
+  Menu.setApplicationMenu(null)
 });
 
 ipcMain.on('getEncryptedLedger', (event) => {
