@@ -14,10 +14,6 @@ const MAX_INSTALLMENTS = 5000
 let win
 let storedPassword
 
-const tlsOptions = {
-  ca: [fs.readFileSync(path.join(app.getAppPath(), 'ca-cert.pem'))]
-}
-
 const store = new Store()
 //store.delete('ledger')
 
@@ -32,9 +28,9 @@ app.whenReady().then(() => {
       preload: path.join(__dirname, 'preload.js')
     },
   });
-  win.loadURL('http://localhost:8000');
-  //win.loadFile('dist/index.html');
-  win.webContents.openDevTools();
+  //win.loadURL('http://localhost:8000');
+  win.loadFile('dist/index.html');
+  //win.webContents.openDevTools();
 });
 
 ipcMain.on('getEncryptedLedger', (event) => {

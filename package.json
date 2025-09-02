@@ -1,7 +1,7 @@
 {
   "name": "liberty-gui",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "main.js",
   "scripts": {
@@ -24,5 +24,26 @@
     "electron": "^37.2.0",
     "electron-builder": "^26.0.12",
     "vite": "^7.0.0"
+  },
+  "build": {
+    "appId": "comm.libertytreewatering.app",
+    "productName": "Liberty Receipt Manager",
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "preload.js"
+    ],
+    "directories": {
+      "output": "electron-dist"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }
