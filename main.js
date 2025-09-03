@@ -28,9 +28,9 @@ app.whenReady().then(() => {
       preload: path.join(__dirname, 'preload.js')
     },
   });
-  //win.loadURL('http://localhost:8000')
-  win.loadFile('dist/index.html')
-  //win.webContents.openDevTools()
+  win.loadURL('http://localhost:8000')
+  //win.loadFile('dist/index.html')
+  win.webContents.openDevTools()
   Menu.setApplicationMenu(null)
 });
 
