@@ -35,6 +35,7 @@
   "build": {
     "appId": "com.libertytreewatering.app",
     "productName": "Liberty Receipt Manager",
+    "artifactName": "liberty_receipt_manager.${ext}",
     "files": [
       "dist/**/*",
       "main.js",

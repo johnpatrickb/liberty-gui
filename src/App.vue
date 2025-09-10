@@ -9,6 +9,7 @@ import Transfer from './components/Transfer.vue'
 import Request from './components/Request.vue'
 import ImportKey from './components/ImportKey.vue'
 import Error from './components/Error.vue'
+import Update from './components/Update.vue'
 import LibertyCrypto from './libertyCrypto.js'
 import NativeWrapper from './nativeWrapper.js';
 </script>
@@ -19,6 +20,12 @@ export default {
     NativeWrapper.getEncryptedLedger().then((encryptedLedger) => {
       if (encryptedLedger !== null)
         this.ledgerFound = true
+    })
+    NativeWrapper.getCurVersion().then((curVersion) => {
+      this.curVersion = curVersion
+    })
+    NativeWrapper.getNewVersion().then((newVersion) => {
+      this.newVersion = newVersion
     })
     return {
       keys: [],
@@ -36,6 +43,8 @@ export default {
       requestPubkey: '',
       errorText: '',
       history: null,
+      newVersion: null,
+      curVersion: null,
     }
   },
   methods: {
@@ -256,6 +265,9 @@ export default {
     isMobile() {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     },
+    restart() {
+      NativeWrapper.restart()
+    },
   },
   computed: {
     denariiTotal() {
@@ -275,10 +287,11 @@ export default {
 <template>
   <div class="loading" v-show="loading">loading...</div>
   <Init v-show="!loading" v-if="!ledgerDecrypted" @decrypt="decryptLedger" :ledger-found="ledgerFound" :bad-password="badPassword" />
+  <Update v-show="!loading" v-if="ledgerDecrypted && newVersion !== null" @restart="restart" :new-version="newVersion" />
   <Error @clearError="errorText = ''" :errorText="errorText" />
   <Header v-show="page !== ''" @back="changePage('')" />
   <div class="flex-container">
-    <Sidebar v-show="(mobileShowMenu && ledgerDecrypted) || !isMobile()" @change="changePage" :denarii-total="denariiTotal" :active-page="page" class="sidebar" />
+    <Sidebar v-show="(mobileShowMenu && ledgerDecrypted) || !isMobile()" @change="changePage" :denarii-total="denariiTotal" :active-page="page" :version="curVersion" class="sidebar" />
     <Ledger v-show="page === 'ledger'" @consolidate="consolidate" @redeem="redeem" @remove="removeKey" @fetchHistory="fetchHistory" :keys="keys" :receipts="receipts" :history="history" :mobile="isMobile()" class="content" />
     <NewKey v-show="page === 'newKey'" @newKey="generateKey" class="content" />
     <Transfer v-show="page === 'transfer'" @transfer="transfer" :denarii-total="denariiTotal" class="content" />

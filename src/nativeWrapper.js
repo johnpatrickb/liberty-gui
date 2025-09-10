@@ -10,4 +10,23 @@ export default {
   setEncryptedLedger(encryptedLedger) {
     window.api.send('setEncryptedLedger', encryptedLedger)
   },
+  getCurVersion() {
+    return new Promise((resolve, reject) => {
+      window.api.once('curVersion', (version) => {
+        resolve(version)
+      })
+      window.api.send('getCurVersion')
+    })
+  },
+  getNewVersion() {
+    return new Promise((resolve, reject) => {
+      window.api.receive('newVersion', (version) => {
+        resolve(version)
+      })
+      window.api.send('getNewVersion')
+    })
+  },
+  restart() {
+    window.api.send('restart')
+  },
 };

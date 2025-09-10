@@ -3,7 +3,7 @@
 
 <script>
 export default {
-  props: ['denariiTotal', 'activePage'],
+  props: ['denariiTotal', 'activePage', 'version'],
   emits: ['change'],
   methods: {
     change(page) {
@@ -25,10 +25,17 @@ export default {
       <li @click="change('request')"><strong>Request</strong></li>
       <li @click="change('import')"><strong>Import</strong></li>
     </ul>
+    <p class="version">Version {{version}}</p>
   </div>
 </template>
 
 <style scoped>
+.version {
+  position: absolute;
+  bottom: 10px;
+  color: lightgray;
+}
+
 .mobile-header {
   display: none;
 }
