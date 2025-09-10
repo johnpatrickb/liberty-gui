@@ -1,10 +1,8 @@
 import {app, BrowserWindow, ipcMain, Menu} from 'electron'
+import {autoUpdater, appUpdater} from 'electron-updater'
 import Store from 'electron-store'
-import fs from 'fs'
 import {fileURLToPath} from 'url'
 import path from 'path'
-import crypto from 'crypto'
-import tls from 'tls'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -32,6 +30,7 @@ app.whenReady().then(() => {
   //win.loadFile('dist/index.html')
   win.webContents.openDevTools()
   Menu.setApplicationMenu(null)
+  autoUpdater.checkForUpdatesAndNotify()
 });
 
 ipcMain.on('getEncryptedLedger', (event) => {
